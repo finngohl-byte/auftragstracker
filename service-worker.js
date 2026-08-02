@@ -1,4 +1,4 @@
-DATEIEN = ["start.html", "style.css", "app.js"]
+DATEIEN = ["index.html", "style.css", "app.js"]
 
 
 self.addEventListener("install", function(event){
