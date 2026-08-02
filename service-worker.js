@@ -1,0 +1,21 @@
+DATEIEN = ["start.html", "style.css", "app.js"]
+
+
+self.addEventListener("install", function(event){
+    event.waitUntil(
+        caches.open("auftragstracker").then(function(cache){
+            return cache.addAll(DATEIEN)
+
+
+        })
+    )
+})
+
+self.addEventListener("fetch", function(event){
+    event.respondWith(
+        caches.match(event.request).then(function(antwort){
+            return antwort || fetch(event.request)
+
+        })
+    )
+})
