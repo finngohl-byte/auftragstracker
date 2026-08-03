@@ -1,12 +1,12 @@
-DATEIEN = ["index.html", "style.css", "app.js"]
-
+const DATEIEN = ["index.html", "style.css", "app.js"]
+const CACHE_NAME = "auftragstracker-v1"
 
 self.addEventListener("install", function(event){
     event.waitUntil(
-        caches.open("auftragstracker").then(function(cache){
+        caches.open("CACHE_NAME").then(function(cache){
             return cache.addAll(DATEIEN)
 
-
+s
         })
     )
 })
