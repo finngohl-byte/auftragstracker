@@ -4,16 +4,65 @@ const content = document.getElementById("info-input");
 const button = document.getElementById("hinzufuegen");
 const overview = document.getElementById("Uebersicht");
 
-let auftraege = []
 
-auftraege = laden("auftraege")
-render_list()
+let filter = "alle"
+
+const all = document.createElement("button")
+all.textContent = "Alle"
+all.addEventListener("click", function(){
+        filter = "alle"
+        render_list()
+})
+const undone = document.createElement("button")
+undone.textContent = "OFFENE"
+undone.addEventListener("click", function(){
+    filter = "OFFEN"
+    render_list()
+})
+const done_ = document.createElement("button")
+done_.textContent = "ERLEDIGTE"
+done_.addEventListener("click", function(){
+    filter = "ERLEDIGT"
+    render_list()
+
+})
+const categories = document.createElement("div")
+categories.append(all, undone, done_)
+categories.classList.add("change_btn")
+overview.parentNode.insertBefore(categories, overview)
+
 
 
 
 function render_list(){
     overview.innerHTML = ""
-    for (const auftrag of auftraege){
+    if (window.auftraege.length > 0){
+        categories.style.display = "flex";    
+    } else {
+        categories.style.display = "none";     
+        }
+        
+    all.classList.remove("aktiv");
+    undone.classList.remove("aktiv");
+    done_.classList.remove("aktiv");
+
+    if (filter === "alle"){
+        all.classList.add("aktiv");
+    } else if (filter === "OFFEN"){
+        undone.classList.add("aktiv");
+    } else if (filter === "ERLEDIGT"){
+        done_.classList.add("aktiv");
+    }
+    let anzuzeigen = window.auftraege
+
+    if (filter === "OFFEN"){
+        anzuzeigen = window.auftraege.filter(function(a){return !a.erledigt})
+ 
+    } else if (filter === "ERLEDIGT") {
+        anzuzeigen = window.auftraege.filter(function(a){return a.erledigt})
+    } 
+
+    for (const auftrag of anzuzeigen){
         const li = document.createElement("li")
         const done = document.createElement("button")
         const remove = document.createElement("button")
@@ -28,27 +77,20 @@ function render_list(){
 
         bearbeitet.textContent = "IN BEARBEITUNG"
         bearbeitet.addEventListener("click", function(){
-            auftrag.bearbeitet = true
-            speichern(auftraege)
-            render_list()
+            auftrag_aktualisieren(auftrag.firestoreId, {bearbeitet: true});
         })    
         buttons.appendChild(bearbeitet)
 
         done.textContent = "DONE"
         done.addEventListener("click", function(){
-            auftrag.erledigt = true
-            auftrag.bearbeitet = false 
-            speichern(auftraege)
-            render_list()
+            auftrag_aktualisieren(auftrag.firestoreId, {erledigt: true, bearbeitet: false});
         })
         buttons.appendChild(done)
 
         
         remove.textContent =  "DELETE"
         remove.addEventListener("click", function(){
-            auftraege = auftraege.filter(function(a){return a.id !== auftrag.id})
-            speichern(auftraege)
-            render_list()
+            auftrag_loeschen(auftrag.firestoreId);
         })    
         buttons.appendChild(remove)   
    
@@ -68,30 +110,7 @@ function render_list(){
     }
 
 }
-
-function auftrag_hinzufuegen(name, adress, inhalt){
-    auftraege.push({id: Date.now(), name: name, adresse: adress, content: inhalt, erledigt: false, bearbeitet: false})
-    speichern(auftraege)
-    render_list()
-
-}
-
-function speichern(datei){
-    localStorage.setItem("auftraege", JSON.stringify(datei))
-
-}
-
-function laden(datei){
-    const gespeichert = localStorage.getItem(datei); 
-
-    if (gespeichert){
-        return JSON.parse(gespeichert)
-
-    }
-
-    return []
-
-}
+window.render_list = render_list;
 
 button.addEventListener("click", function(){
     const name_text = name.value;
